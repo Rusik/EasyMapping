@@ -181,6 +181,9 @@ static const char scalarTypes[] = {
     if (propertyMapping.valueBlock) {
         value = propertyMapping.valueBlock(propertyMapping.keyPath, [representation valueForKeyPath:propertyMapping.keyPath]);
     }
+    else if (propertyMapping.representationBlock) {
+        value = propertyMapping.representationBlock(representation);
+    }
     else {
         value = [representation valueForKeyPath:propertyMapping.keyPath];
     }

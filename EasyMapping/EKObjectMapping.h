@@ -161,6 +161,15 @@
 - (void)mapPropertiesFromMappingObject:(EKObjectMapping *)mappingObj;
 
 /**
+ Map entire representation to object property, using valueBlock. This can be useful to combine multiple key paths from representation to one property.
+
+ @param property Property name.
+
+ @param representationBlock block to transform JSON representation into property value.
+ */
+- (void)mapRepresentationToProperty:(NSString *)property withRepresentationBlock:(EKMappingRepresentationBlock)representationBlock;
+
+/**
  Map JSON keyPath to object property, using valueBlock.
  
  @param keyPath JSON keypath, that will be used by valueForKeyPath: method

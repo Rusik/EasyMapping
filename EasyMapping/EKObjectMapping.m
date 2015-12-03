@@ -152,6 +152,18 @@
     }
 }
 
+- (void)mapRepresentationToProperty:(NSString *)property
+            withRepresentationBlock:(EKMappingRepresentationBlock)representationBlock
+{
+    NSParameterAssert(property);
+    NSParameterAssert(representationBlock);
+
+    EKPropertyMapping *mapping = [[EKPropertyMapping alloc] init];
+    mapping.property = property;
+    mapping.representationBlock = representationBlock;
+    [self addPropertyMappingToDictionary:mapping];
+}
+
 - (void)mapKeyPath:(NSString *)keyPath toProperty:(NSString *)property
 withValueBlock:(id (^)(NSString *, id))valueBlock
 {
@@ -258,7 +270,7 @@ withValueBlock:(id (^)(NSString *, id))valueBlock reverseBlock:(id (^)(id))rever
 
 - (void)addPropertyMappingToDictionary:(EKPropertyMapping *)propertyMapping
 {
-    [self.propertyMappings setObject:propertyMapping forKey:propertyMapping.keyPath];
+    [self.propertyMappings setObject:propertyMapping forKey:propertyMapping.property];
 }
 
 @end

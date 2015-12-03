@@ -25,7 +25,8 @@
 #import <CoreData/CoreData.h>
 
 typedef id(^EKMappingValueBlock)(NSString *key, id value);
-typedef id(^EKMappingReverseBlock)( id value);
+typedef id(^EKMappingRepresentationBlock)(id representation);
+typedef id(^EKMappingReverseBlock)(id value);
 
 typedef id(^EKManagedMappingValueBlock)(NSString * key, id value, NSManagedObjectContext * context);
 typedef id(^EKManagedMappingReverseValueBlock)(id value, NSManagedObjectContext * context);
