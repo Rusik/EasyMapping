@@ -1,16 +1,17 @@
 Pod::Spec.new do |s|
 
   s.name         = "EasyMapping"
-  s.version      = "0.15.4"
+  s.version      = "0.15.5"
   s.summary      = "The easiest way to map data from your webservice."
   s.homepage     = "https://github.com/lucasmedeirosleite/EasyMapping"
 
   s.license      = { :type => 'MIT', :file => 'LICENSE' }
 
   s.authors       = { "Lucas Medeiros"  => "lucastoc@gmail.com",
-                      "Denys Telezhkin" => "denys.telezhkin@yandex.ru" }
+                      "Denys Telezhkin" => "denys.telezhkin@yandex.ru",
+                      "Modified by Ruslan Kavetsky" => "rusya.182@gmail.com" }
 
-  s.source       = { :git => "https://github.com/EasyMapping/EasyMapping.git", :tag => s.version.to_s }
+  s.source       = { :git => "https://github.com/Rusik/EasyMapping", :tag => s.version.to_s }
 
   s.requires_arc = true
 
