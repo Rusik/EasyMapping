@@ -41,69 +41,71 @@ static const char scalarTypes[] = {
 + (BOOL)propertyNameIsScalar:(NSString *)propertyName fromObject:(id)object
 {
     objc_property_t property = class_getProperty(object_getClass(object), [propertyName UTF8String]);
-	NSString *type = property ? [self propertyTypeStringRepresentationFromProperty:property] : nil;
-    
-	return (type.length == 1) && (NSNotFound != [@(scalarTypes) rangeOfString:type].location);
+    NSString *type = property ? [self propertyTypeStringRepresentationFromProperty:property] : nil;
+
+    return (type.length == 1) && (NSNotFound != [@(scalarTypes) rangeOfString:type].location);
 }
 
-+ (NSString *) propertyTypeStringRepresentationFromProperty:(objc_property_t)property
++ (NSString *)propertyTypeStringRepresentationFromProperty:(objc_property_t)property
 {
     const char *TypeAttribute = "T";
-	char *type = property_copyAttributeValue(property, TypeAttribute);
-	NSString *propertyType = (type[0] != _C_ID) ? @(type) : ({
-		(type[1] == 0) ? @"id" : ({
-			// Modern format of a type attribute (e.g. @"NSSet")
-			type[strlen(type) - 1] = 0;
-			@(type + 2);
-		});
-	});
-	free(type);
-	return propertyType;
+    char *type = property_copyAttributeValue(property, TypeAttribute);
+    NSString *propertyType = (type[0] != _C_ID) ? @(type) : ({
+        (type[1] == 0) ? @"id" : ({
+            // Modern format of a type attribute (e.g. @"NSSet")
+            type[strlen(type) - 1] = 0;
+            @(type + 2);
+        });
+    });
+    free(type);
+    return propertyType;
 }
 
-+ (id)propertyRepresentation:(id)value forObject:(id)object withPropertyName:(NSString *)propertyName
++ (id)propertyRepresentation:(id)value
+                   forObject:(id)object
+            withPropertyName:(NSString *)propertyName
 {
-    if  (!value)
-    {
-        return nil;
-    }
-    
+    if (!value) return nil;
+
     objc_property_t property = class_getProperty([object class], [propertyName UTF8String]);
-	if (property)
-    {
-		NSString *type = [self propertyTypeStringRepresentationFromProperty:property];
-		if ([type isEqualToString:@"NSSet"]) {
-			return [NSSet setWithArray:value];
-		}
-		else if ([type isEqualToString:@"NSMutableSet"]) {
+    if (property) {
+        NSString *type = [self propertyTypeStringRepresentationFromProperty:property];
+        if ([type isEqualToString:@"NSSet"]) {
+            return [NSSet setWithArray:value];
+        }
+        else if ([type isEqualToString:@"NSMutableSet"]) {
             return [NSMutableSet setWithArray:value];
-		}
-		else if ([type isEqualToString:@"NSOrderedSet"]) {
+        }
+        else if ([type isEqualToString:@"NSOrderedSet"]) {
             return [NSOrderedSet orderedSetWithArray:value];
-		}
-		else if ([type isEqualToString:@"NSMutableOrderedSet"]) {
+        }
+        else if ([type isEqualToString:@"NSMutableOrderedSet"]) {
             return [NSMutableOrderedSet orderedSetWithArray:value];
-		}
-		else if ([type isEqualToString:@"NSMutableArray"]) {
+        }
+        else if ([type isEqualToString:@"NSMutableArray"]) {
             return [NSMutableArray arrayWithArray:value];
         } else if ([type isEqualToString:@"NSMutableDictionary"]) {
             return [NSMutableDictionary dictionaryWithDictionary:value];
-        } 
-	}
+        }
+    }
     return value;
 }
 
-#pragma mark Property accessor methods 
+#pragma mark Property accessor methods
 
-+ (void)setProperty:(EKPropertyMapping *)propertyMapping onObject:(id)object
- fromRepresentation:(NSDictionary *)representation respectPropertyType:(BOOL)respectPropertyType
++ (void)setProperty:(EKPropertyMapping *)propertyMapping
+           onObject:(id)object
+ fromRepresentation:(NSDictionary *)representation
+respectPropertyType:(BOOL)respectPropertyType
 {
-    id value = [self getValueOfProperty:propertyMapping fromRepresentation:representation];
-    if (value == (id)[NSNull null]) {
+    id value = [self getValueOfProperty:propertyMapping
+                     fromRepresentation:representation];
+
+    if (value == nil || value == (id)[NSNull null]) {
         if (![self propertyNameIsScalar:propertyMapping.property fromObject:object]) {
             [self setValue:nil onObject:object forKeyPath:propertyMapping.property];
         }
-    } else if (value) {
+    } else {
         if (respectPropertyType) {
             value = [self propertyRepresentation:value
                                        forObject:object
@@ -122,11 +124,12 @@ static const char scalarTypes[] = {
     id value = [self getValueOfManagedProperty:propertyMapping
                             fromRepresentation:representation
                                      inContext:context];
-    if (value == (id)[NSNull null]) {
+
+    if (value == nil || value == (id)[NSNull null]) {
         if (![self propertyNameIsScalar:propertyMapping.property fromObject:object]) {
             [self setValue:nil onObject:object forKeyPath:propertyMapping.property];
         }
-    } else if (value) {
+    } else {
         if (respectPropertyType) {
             value = [self propertyRepresentation:value
                                        forObject:object
@@ -136,13 +139,14 @@ static const char scalarTypes[] = {
     }
 }
 
-+(void)setValue:(id)value onObject:(id)object forKeyPath:(NSString *)keyPath
++ (void)setValue:(id)value
+        onObject:(id)object
+      forKeyPath:(NSString *)keyPath
 {
-    if ([(id <NSObject>)object isKindOfClass:[NSManagedObject class]])
-    {
+    if ([(id <NSObject>)object isKindOfClass:[NSManagedObject class]]) {
         // Reducing update times in CoreData
         id _value = [object valueForKeyPath:keyPath];
-        
+
         if (_value != value && ![_value isEqual:value]) {
             [object setValue:value forKeyPath:keyPath];
         }
@@ -152,17 +156,18 @@ static const char scalarTypes[] = {
     }
 }
 
-+(void)addValue:(id)value onObject:(id)object forKeyPath:(NSString *)keyPath
++ (void)addValue:(id)value
+        onObject:(id)object
+      forKeyPath:(NSString *)keyPath
 {
     id _value = [object valueForKeyPath:keyPath];
-    if(![_value isKindOfClass:[NSSet class]]) {
+    if (![_value isKindOfClass:[NSSet class]]) {
         [self setValue:value onObject:object forKeyPath:keyPath];
     }
     else {
-        if ([object isKindOfClass:[NSManagedObject class]])
-        {
+        if ([object isKindOfClass:[NSManagedObject class]]) {
             // Reducing update times in CoreData
-            if(_value != value && ![value isSubsetOfSet:_value]) {
+            if (_value != value && ![value isSubsetOfSet:_value]) {
                 _value = [_value setByAddingObjectsFromSet:value];
                 [object setValue:_value forKey:keyPath];
             }
@@ -174,10 +179,11 @@ static const char scalarTypes[] = {
     }
 }
 
-+ (id)getValueOfProperty:(EKPropertyMapping *)propertyMapping fromRepresentation:(NSDictionary *)representation
++ (id)getValueOfProperty:(EKPropertyMapping *)propertyMapping
+      fromRepresentation:(NSDictionary *)representation
 {
     id value = nil;
-    
+
     if (propertyMapping.valueBlock) {
         value = propertyMapping.valueBlock(propertyMapping.keyPath, [representation valueForKeyPath:propertyMapping.keyPath]);
     }
@@ -187,16 +193,16 @@ static const char scalarTypes[] = {
     else {
         value = [representation valueForKeyPath:propertyMapping.keyPath];
     }
-    
+
     return value;
 }
 
-+(id)getValueOfManagedProperty:(EKPropertyMapping *)mapping
-            fromRepresentation:(NSDictionary *)representation
-                     inContext:(NSManagedObjectContext *)context
++ (id)getValueOfManagedProperty:(EKPropertyMapping *)mapping
+             fromRepresentation:(NSDictionary *)representation
+                      inContext:(NSManagedObjectContext *)context
 {
     id value = nil;
-    
+
     if (mapping.managedValueBlock) {
         id representationValue = [representation valueForKeyPath:mapping.keyPath];
         value = mapping.managedValueBlock(mapping.keyPath,representationValue,context);
@@ -204,7 +210,7 @@ static const char scalarTypes[] = {
     else {
         value = [representation valueForKeyPath:mapping.keyPath];
     }
-    
+
     return value;
 }
 

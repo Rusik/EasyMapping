@@ -30,21 +30,22 @@
 @synthesize hasOneMappings = _hasOneMappings;
 @synthesize rootPath = _rootPath;
 
-+ (EKManagedObjectMapping *)mappingForEntityName:(NSString *)entityName withBlock:(void (^)(EKManagedObjectMapping * mapping))mappingBlock
++ (EKManagedObjectMapping *)mappingForEntityName:(NSString *)entityName
+                                       withBlock:(void (^)(EKManagedObjectMapping * mapping))mappingBlock
 {
     EKManagedObjectMapping * mapping = [[EKManagedObjectMapping alloc] initWithEntityName:entityName];
-    if (mappingBlock)
-    {
+    if (mappingBlock) {
         mappingBlock(mapping);
     }
     return mapping;
 }
 
-+ (EKManagedObjectMapping *)mappingForEntityName:(NSString *)entityName withRootPath:(NSString *)rootPath withBlock:(void (^)(EKManagedObjectMapping * mapping))mappingBlock
++ (EKManagedObjectMapping *)mappingForEntityName:(NSString *)entityName
+                                    withRootPath:(NSString *)rootPath
+                                       withBlock:(void (^)(EKManagedObjectMapping * mapping))mappingBlock
 {
     EKManagedObjectMapping * mapping = [[EKManagedObjectMapping alloc] initWithEntityName:entityName withRootPath:rootPath];
-    if (mappingBlock)
-    {
+    if (mappingBlock) {
         mappingBlock(mapping);
     }
     return mapping;
@@ -53,8 +54,7 @@
 - (id)initWithEntityName:(NSString *)entityName
 {
     self = [super init];
-    if (self)
-    {
+    if (self) {
         _entityName = entityName;
         _propertyMappings = [NSMutableDictionary dictionary];
         _hasOneMappings = [NSMutableDictionary dictionary];
@@ -66,8 +66,7 @@
 - (id)initWithEntityName:(NSString *)entityName withRootPath:(NSString *)rootPath
 {
     self = [self initWithEntityName:entityName];
-    if (self)
-    {
+    if (self) {
         _rootPath = rootPath;
     }
     return self;
@@ -76,11 +75,9 @@
 - (EKPropertyMapping *)primaryKeyPropertyMapping
 {
     __block EKPropertyMapping * primaryKeyMapping = nil;
-    [self.propertyMappings enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL * stop)
-    {
+    [self.propertyMappings enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL * stop) {
         EKPropertyMapping * mapping = obj;
-        if ([mapping.property isEqualToString:self.primaryKey])
-        {
+        if ([mapping.property isEqualToString:self.primaryKey]) {
             primaryKeyMapping = mapping;
             *stop = YES;
         }
@@ -88,7 +85,9 @@
     return primaryKeyMapping;
 }
 
--(void)mapKeyPath:(NSString *)keyPath toProperty:(NSString *)property withValueBlock:(EKManagedMappingValueBlock)valueBlock
+- (void)mapKeyPath:(NSString *)keyPath
+        toProperty:(NSString *)property
+    withValueBlock:(EKManagedMappingValueBlock)valueBlock
 {
     NSParameterAssert(keyPath);
     NSParameterAssert(property);
@@ -101,7 +100,10 @@
     [self addPropertyMappingToDictionary:mapping];
 }
 
--(void)mapKeyPath:(NSString *)keyPath toProperty:(NSString *)property withValueBlock:(EKManagedMappingValueBlock)valueBlock reverseBlock:(EKManagedMappingReverseValueBlock)reverseBlock
+- (void)mapKeyPath:(NSString *)keyPath
+       toProperty:(NSString *)property
+   withValueBlock:(EKManagedMappingValueBlock)valueBlock
+     reverseBlock:(EKManagedMappingReverseValueBlock)reverseBlock
 {
     NSParameterAssert(keyPath);
     NSParameterAssert(property);

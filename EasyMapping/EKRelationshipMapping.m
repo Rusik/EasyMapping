@@ -10,25 +10,22 @@
 
 @implementation EKRelationshipMapping
 
--(EKObjectMapping*)objectMapping
+- (EKObjectMapping*)objectMapping
 {
     return (_objectMapping == nil) ? [_objectClass objectMapping] : _objectMapping;
 }
 
--(NSDictionary *)extractObjectFromRepresentation:(NSDictionary *)representation
+- (NSDictionary *)extractObjectFromRepresentation:(NSDictionary *)representation
 {
-    if (self.nonNestedKeyPaths == nil)
-    {
+    if (self.nonNestedKeyPaths == nil) {
         return [representation valueForKeyPath:self.keyPath];
     }
     else {
         NSMutableDictionary * values = [NSMutableDictionary dictionaryWithCapacity:self.nonNestedKeyPaths.count];
         
-        for (NSString * keyPath in self.nonNestedKeyPaths)
-        {
+        for (NSString * keyPath in self.nonNestedKeyPaths) {
             id value = [representation valueForKeyPath:keyPath];
-            if (value && value!=(id)[NSNull null])
-            {
+            if (value && value!=(id)[NSNull null]) {
                 values[keyPath] = value;
             }
         }
