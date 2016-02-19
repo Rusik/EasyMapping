@@ -162,7 +162,8 @@
     if (propertyMapping.managedReverseBlock)
         returnedValue = propertyMapping.managedReverseBlock(returnedValue,context);
 
-    [self setValue:returnedValue forKeyPath:propertyMapping.keyPath inRepresentation:representation];
+    if (returnedValue)
+        [self setValue:returnedValue forKeyPath:propertyMapping.keyPath inRepresentation:representation];
 }
 
 + (void)setValueOnRepresentation:(NSMutableDictionary *)representation
@@ -174,7 +175,8 @@
     if (propertyMapping.reverseBlock)
         returnedValue = propertyMapping.reverseBlock(returnedValue);
 
-    [self setValue:returnedValue forKeyPath:propertyMapping.keyPath inRepresentation:representation];
+    if (returnedValue)
+        [self setValue:returnedValue forKeyPath:propertyMapping.keyPath inRepresentation:representation];
 }
 
 + (void)setValue:(id)value
